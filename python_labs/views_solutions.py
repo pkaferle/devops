@@ -28,6 +28,15 @@ def init_db():
 def before_request():
     g.db = init_db()
 
+def create_user():
+    # Get the user data from the web page
+    username = request.form['username']
+    password = request.form['password']
+    return username, password
+
+def check_user(key, field):
+    # Check if user already exists
+    return g.db.hexists(key, field)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -36,12 +45,16 @@ def signup():
         return render_template('signup.html', error=error)
 
     # Get the user data from the web page
-    username = request.form['username']
-    password = request.form['password']
+    #username = request.form['username']
+    #password = request.form['password']
+
+    username, password = create_user()
 
     # TODO: Check if the user already exists
-    check_user = g.db.hexists('users', username)
-    if check_user:
+    existing_user = check_user()
+    #check_user = g.db.hexists('users', username)
+
+    if existing_user:
         error = 'User already exists.'
         return render_template('signup.html', error=error)
 
